@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Telling Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #clock {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Time Telling Game</h1>
+        <div id="clock"></div>
+        <div id="options"></div>
+        <div id="result"></div>
+        <button id="next-question">Next Question</button>
+    </div>
+
+    <script>
+        const clock = document.getElementById('clock');
+        const options = document.getElementById('options');
+        const result = document.getElementById('result');
+        const nextQuestionBtn = document.getElementById('next-question');
+
+        let correctAnswer = '';
+
+        function generateTime() {
+            const hour = Math.floor(Math.random() * 12) + 1;
+            const minute = Math.floor(Math.random() * 4) * 15;
+            return { hour, minute };
+        }
+
+        function formatTime(hour, minute) {
+            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
+
+        function getTimeDescription(hour, minute) {
+            if (minute === 0) return `${hour} o'clock`;
+            if (minute === 15) return `Quarter past ${hour}`;
+            if (minute === 30) return `Half past ${hour}`;
+            if (minute === 45) return `Quarter to ${(hour % 12) + 1}`;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function newQuestion() {
+            const { hour, minute } = generateTime();
+            clock.textContent = formatTime(hour, minute);
+            correctAnswer = getTimeDescription(hour, minute);
+
+            const wrongAnswers = [
+                getTimeDescription((hour % 12) + 1, minute),
+                getTimeDescription(hour, (minute + 15) % 60),
+                getTimeDescription(hour, (minute + 30) % 60)
+            ];
+
+            const allOptions = shuffleArray([correctAnswer, ...wrongAnswers]);
+
+            options.innerHTML = '';
+            allOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                options.appendChild(button);
+            });
+
+            result.textContent = '';
+        }
+
+        function checkAnswer(selectedAnswer) {
+            if (selectedAnswer === correctAnswer) {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = `Wrong. The correct answer is: ${correctAnswer}`;
+                result.style.color = 'red';
+            }
+        }
+
+        nextQuestionBtn.onclick = newQuestion;
+
+        newQuestion();
+    </script>
+</body>
+</html>
